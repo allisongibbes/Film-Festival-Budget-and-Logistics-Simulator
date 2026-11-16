@@ -152,20 +152,20 @@
 <div class="container">
     <header>
         <h1>Film Festival Executive Director Simulator</h1>
-        <p class="subtitle">Allocate your $1,000,000 budget wisely across operational pillars to maximize festival success.</p>
+        <p class="subtitle">Allocate your budget wisely across operational pillars to maximize festival success.</p>
     </header>
 
     <div class="dashboard-grid">
         <!-- Budget Controls Panel -->
         <div class="panel">
-            <h2>Budget Allocation ($1M Total)</h2>
+            <h2>Budget Allocation</h2>
             
             <div class="budget-row">
                 <div class="budget-label">
                     <span>Curation & Submissions</span>
                     <span id="val-curation">$250,000</span>
                 </div>
-                <input type="range" id="slider-curation" min="0" max="600000" step="10000" value="250000" oninput="updateSimulation()">
+                <input type="range" id="slider-curation" min="0" max="1000000" step="10000" value="250000" oninput="updateSimulation()">
             </div>
 
             <div class="budget-row">
@@ -173,7 +173,7 @@
                     <span>Venue Tech & Logistics</span>
                     <span id="val-logistics">$300,000</span>
                 </div>
-                <input type="range" id="slider-logistics" min="0" max="600000" step="10000" value="300000" oninput="updateSimulation()">
+                <input type="range" id="slider-logistics" min="0" max="1000000" step="10000" value="300000" oninput="updateSimulation()">
             </div>
 
             <div class="budget-row">
@@ -181,7 +181,7 @@
                     <span>Talent Hospitality & Red Carpet</span>
                     <span id="val-hospitality">$250,000</span>
                 </div>
-                <input type="range" id="slider-hospitality" min="0" max="600000" step="10000" value="250000" oninput="updateSimulation()">
+                <input type="range" id="slider-hospitality" min="0" max="1000000" step="10000" value="250000" oninput="updateSimulation()">
             </div>
 
             <div class="budget-row">
@@ -189,7 +189,7 @@
                     <span>Marketing & Operations</span>
                     <span id="val-marketing">$200,000</span>
                 </div>
-                <input type="range" id="slider-marketing" min="0" max="600000" step="10000" value="200000" oninput="updateSimulation()">
+                <input type="range" id="slider-marketing" min="0" max="1000000" step="10000" value="200000" oninput="updateSimulation()">
             </div>
 
             <div class="budget-summary">
@@ -235,7 +235,7 @@
             </div>
 
             <div class="status-box" id="feedback-box">
-                Adjust sliders to test your festival strategy. Keep total allocation at exactly $1,000,000!
+                Adjust sliders to test your festival strategy.
             </div>
         </div>
     </div>
@@ -266,13 +266,12 @@
 
         if (total !== TOTAL_BUDGET) {
             totalEl.className = "invalid";
-            document.getElementById('feedback-boxinnerHTML').innerText = `Warning: Your budget totals ${formatCurrency(total)}. You must allocate exactly $1,000,000!`;
-            return;
+            document.getElementById('feedback-box').innerHTML = `⚠️ <strong>Budget Warning:</strong> Your budget totals ${formatCurrency(total)}. Try to target exactly $1,000,000!`;
         } else {
             totalEl.className = "valid";
         }
 
-        // Calculate scores based on diminishing returns and balanced investment
+        // Calculate scores based on investment
         let prestige = Math.min(100, Math.round((c / 350000) * 85 + 15));
         let venue = Math.min(100, Math.round((l / 350000) * 85 + 15));
         let buzz = Math.min(100, Math.round((h / 350000) * 85 + 15));
@@ -291,25 +290,26 @@
         document.getElementById('bar-attendance').style.width = attendance + '%';
         document.getElementById('score-attendance').innerText = attendance + '%';
 
-        // Generate dynamic feedback
-        let feedback = "";
-        let avg = (prestige + venue + buzz + attendance) / 4;
+        // Generate dynamic feedback if budget is met
+        if (total === TOTAL_BUDGET) {
+            let feedback = "";
+            let avg = (prestige + venue + buzz + attendance) / 4;
 
-        if (c < 150000) {
-            feedback = "⚠️ <strong>Curation Warning:</strong> Your film slate is weak. Critics and buyers are skipping your screenings.";
-        } else if (l < 150000) {
-            feedback = "⚠️ <strong>Logistics Warning:</strong> Projection errors and long lines are frustrating filmmakers and audiences.";
-        } else if (h < 150000) {
-            feedback = "⚠️ <strong>Hospitality Warning:</strong> Talent and press are staying away due to poor accommodations and security.";
-        } else if (m < 150000) {
-            feedback = "⚠️ <strong>Marketing Warning:</strong> Ticket sales are low because nobody knows the festival is happening.";
-        } else if (avg > 80) {
-            feedback = "🏆 <strong>Triumphant Success!</strong> Your festival is a world-class premier destination, balancing artistic acclaim with flawless execution.";
-        } else {
-            feedback = "👍 <strong>Solid Festival Run!</strong> A balanced operation with good turnout and steady industry interest.";
+            if (c < 150000) {
+                feedback = "⚠️ <strong>Curation Warning:</strong> Your film slate is thin. Critics and buyers are skipping your screenings.";
+            } else if (l < 150000) {
+                feedback = "⚠️ <strong>Logistics Warning:</strong> Projection errors and long lines are frustrating filmmakers.";
+            } else if (h < 150000) {
+                feedback = "⚠️ <strong>Hospitality Warning:</strong> Talent and press are staying away due to poor accommodations.";
+            } else if (m < 150000) {
+                feedback = "⚠️ <strong>Marketing Warning:</strong> Ticket sales are low because nobody knows the festival is happening.";
+            } else if (avg > 80) {
+                feedback = "🏆 <strong>Triumphant Success!</strong> Your festival is a world-class premier destination, balancing artistic acclaim with flawless execution.";
+            } else {
+                feedback = "👍 <strong>Solid Festival Run!</strong> A balanced operation with good turnout and steady industry interest.";
+            }
+            document.getElementById('feedback-box').innerHTML = feedback;
         }
-
-        document.getElementById('feedback-box').innerHTML = feedback;
     }
 
     // Run initial calculation on load
