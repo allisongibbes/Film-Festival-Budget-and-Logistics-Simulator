@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Film Festival Budget & Logistics Simulator</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.2);
+            --border: #334155;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        header {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin: 0 0 8px 0;
+            color: var(--text-primary);
+        }
+
+        p.subtitle {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .panel h2 {
+            font-size: 1.1rem;
+            margin-top: 0;
+            margin-bottom: 16px;
+            color: var(--accent);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+        }
+
+        .budget-row {
+            margin-bottom: 14px;
+        }
+
+        .budget-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            accent-color: var(--accent);
+            cursor: pointer;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+        }
+
+        .progress-bar-container {
+            width: 60%;
+            background: #334155;
+            border-radius: 6px;
+            height: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: var(--accent);
+            transition: width 0.3s ease, background-color 0.3s ease;
+        }
+
+        .status-box {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 8px;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+
+        .budget-summary {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            font-size: 1rem;
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        .valid { color: var(--success); }
+        .invalid { color: var(--danger); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Film Festival Executive Director Simulator</h1>
+        <p class="subtitle">Allocate your $1,000,000 budget wisely across operational pillars to maximize festival success.</p>
+    </header>
+
+    <div class="dashboard-grid">
+        <!-- Budget Controls Panel -->
+        <div class="panel">
+            <h2>Budget Allocation ($1M Total)</h2>
+            
+            <div class="budget-row">
+                <div class="budget-label">
+                    <span>Curation & Submissions</span>
+                    <span id="val-curation">$250,000</span>
+                </div>
+                <input type="range" id="slider-curation" min="0" max="600000" step="10000" value="250000" oninput="updateSimulation()">
+            </div>
+
+            <div class="budget-row">
+                <div class="budget-label">
+                    <span>Venue Tech & Logistics</span>
+                    <span id="val-logistics">$300,000</span>
+                </div>
+                <input type="range" id="slider-logistics" min="0" max="600000" step="10000" value="300000" oninput="updateSimulation()">
+            </div>
+
+            <div class="budget-row">
+                <div class="budget-label">
+                    <span>Talent Hospitality & Red Carpet</span>
+                    <span id="val-hospitality">$250,000</span>
+                </div>
+                <input type="range" id="slider-hospitality" min="0" max="600000" step="10000" value="250000" oninput="updateSimulation()">
+            </div>
+
+            <div class="budget-row">
+                <div class="budget-label">
+                    <span>Marketing & Operations</span>
+                    <span id="val-marketing">$200,000</span>
+                </div>
+                <input type="range" id="slider-marketing" min="0" max="600000" step="10000" value="200000" oninput="updateSimulation()">
+            </div>
+
+            <div class="budget-summary">
+                <span>Total Allocated:</span>
+                <span id="total-allocated">$1,000,000</span>
+            </div>
+        </div>
+
+        <!-- Performance Dashboard Panel -->
+        <div class="panel">
+            <h2>Festival Performance Metrics</h2>
+
+            <div class="metric-row">
+                <span>Artistic Prestige:</span>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="bar-prestige"></div>
+                </div>
+                <span id="score-prestige">0%</span>
+            </div>
+
+            <div class="metric-row">
+                <span>Venue & Projection Quality:</span>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="bar-venue"></div>
+                </div>
+                <span id="score-venue">0%</span>
+            </div>
+
+            <div class="metric-row">
+                <span>Celebrity & Media Buzz:</span>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="bar-buzz"></div>
+                </div>
+                <span id="score-buzz">0%</span>
+            </div>
+
+            <div class="metric-row">
+                <span>Public Attendance & Sales:</span>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="bar-attendance"></div>
+                </div>
+                <span id="score-attendance">0%</span>
+            </div>
+
+            <div class="status-box" id="feedback-box">
+                Adjust sliders to test your festival strategy. Keep total allocation at exactly $1,000,000!
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const TOTAL_BUDGET = 1000000;
+
+    function formatCurrency(num) {
+        return "$" + num.toLocaleString();
+    }
+
+    function updateSimulation() {
+        let c = parseInt(document.getElementById('slider-curation').value);
+        let l = parseInt(document.getElementById('slider-logistics').value);
+        let h = parseInt(document.getElementById('slider-hospitality').value);
+        let m = parseInt(document.getElementById('slider-marketing').value);
+
+        let total = c + l + h + m;
+
+        document.getElementById('val-curation').innerText = formatCurrency(c);
+        document.getElementById('val-logistics').innerText = formatCurrency(l);
+        document.getElementById('val-hospitality').innerText = formatCurrency(h);
+        document.getElementById('val-marketing').innerText = formatCurrency(m);
+
+        let totalEl = document.getElementById('total-allocated');
+        totalEl.innerText = formatCurrency(total);
+
+        if (total !== TOTAL_BUDGET) {
+            totalEl.className = "invalid";
+            document.getElementById('feedback-boxinnerHTML').innerText = `Warning: Your budget totals ${formatCurrency(total)}. You must allocate exactly $1,000,000!`;
+            return;
+        } else {
+            totalEl.className = "valid";
+        }
+
+        // Calculate scores based on diminishing returns and balanced investment
+        let prestige = Math.min(100, Math.round((c / 350000) * 85 + 15));
+        let venue = Math.min(100, Math.round((l / 350000) * 85 + 15));
+        let buzz = Math.min(100, Math.round((h / 350000) * 85 + 15));
+        let attendance = Math.min(100, Math.round((m / 350000) * 85 + 15));
+
+        // Update progress bars
+        document.getElementById('bar-prestige').style.width = prestige + '%';
+        document.getElementById('score-prestige').innerText = prestige + '%';
+
+        document.getElementById('bar-venue').style.width = venue + '%';
+        document.getElementById('score-venue').innerText = venue + '%';
+
+        document.getElementById('bar-buzz').style.width = buzz + '%';
+        document.getElementById('score-buzz').innerText = buzz + '%';
+
+        document.getElementById('bar-attendance').style.width = attendance + '%';
+        document.getElementById('score-attendance').innerText = attendance + '%';
+
+        // Generate dynamic feedback
+        let feedback = "";
+        let avg = (prestige + venue + buzz + attendance) / 4;
+
+        if (c < 150000) {
+            feedback = "⚠️ <strong>Curation Warning:</strong> Your film slate is weak. Critics and buyers are skipping your screenings.";
+        } else if (l < 150000) {
+            feedback = "⚠️ <strong>Logistics Warning:</strong> Projection errors and long lines are frustrating filmmakers and audiences.";
+        } else if (h < 150000) {
+            feedback = "⚠️ <strong>Hospitality Warning:</strong> Talent and press are staying away due to poor accommodations and security.";
+        } else if (m < 150000) {
+            feedback = "⚠️ <strong>Marketing Warning:</strong> Ticket sales are low because nobody knows the festival is happening.";
+        } else if (avg > 80) {
+            feedback = "🏆 <strong>Triumphant Success!</strong> Your festival is a world-class premier destination, balancing artistic acclaim with flawless execution.";
+        } else {
+            feedback = "👍 <strong>Solid Festival Run!</strong> A balanced operation with good turnout and steady industry interest.";
+        }
+
+        document.getElementById('feedback-box').innerHTML = feedback;
+    }
+
+    // Run initial calculation on load
+    updateSimulation();
+</script>
+
+</body>
+</html>
